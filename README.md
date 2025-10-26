@@ -11,6 +11,9 @@
 -----
 ### Решение
 
+![01](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/01.png)
+
+
 -----
 
 
