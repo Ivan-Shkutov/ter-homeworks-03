@@ -13,6 +13,9 @@
 
 ![01](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/01.png)
 
+![3](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/3.png)
+
+![4](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/4.png)
 
 -----
 
