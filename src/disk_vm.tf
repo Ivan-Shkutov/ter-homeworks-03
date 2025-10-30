@@ -1,48 +1,47 @@
-# ---------- Создаём 3 диска ----------
-resource "yandex_compute_disk" "data_disk" {
-  count = 3
-  name  = "data-disk-${count.index + 1}"
-  size  = 1 # размер в ГБ
-  type  = "network-hdd"
-  zone  = "ru-central1-a"
+#  Создаём 3 виртуальных диска
+
+resource "yandex_compute_disk" "disks" {
+  zone = var.default_zone
+  count = var.vdisks.counter
+  name = "${ var.vdisks.name }-${ count.index + 1 }"
+  type = var.vdisks.type
+  size = var.vdisks.size
 }
 
-# ---------- Создаём ВМ ----------
-resource "yandex_compute_instance" "storage" {
-  name        = "storage"
-  platform_id = "standard-v1"
-  zone        = "ru-central1-a"
+#  Создаём ВМ
 
+resource "yandex_compute_instance" "storage" {
+  name              = var.storage_vm.name
+  hostname          = var.storage_vm.hostname
+  platform_id       = var.common_platform
+  zone              = var.default_zone
   resources {
-    cores  = 2
-    memory = 2
+    cores           = var.storage_vm.cores
+    memory          = var.storage_vm.memory
+    core_fraction   = var.storage_vm.core_fraction
   }
 
   boot_disk {
     initialize_params {
-      image_id = "fd80bm0rh4rkepi5ksdi" # пример — Ubuntu 20.04 (замени на актуальный image_id)
+      image_id     = data.yandex_compute_image.ubuntu.image_id
     }
   }
 
-  network_interface {
-    subnet_id = "e9bdsg6v44ldrf2hu8ug" # замени на свой subnet_id
-    nat       = true
-  }
+  #  Подключаем дополнительные диски
 
-  # ---------- Подключаем дополнительные диски ----------
-  dynamic "secondary_disk" {
-    for_each = { for d in yandex_compute_disk.data_disk : d.name => d }
+ dynamic "secondary_disk" {
+    for_each = yandex_compute_disk.virtual_disks.*.id
     content {
-      disk_id = secondary_disk.value.id
+      disk_id = secondary_disk.value
     }
   }
-
-  metadata = {
-    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+  scheduling_policy {
+    preemptible    = var.preempt_on
   }
-}
-# ---------- Выводим внешний IP-адрес ----------
-output "storage_external_ip" {
-  description = "Внешний IP-адрес ВМ storage"
-  value       = yandex_compute_instance.storage.network_interface[0].nat_ip_address
+  network_interface {
+    subnet_id      = yandex_vpc_subnet.develop.id
+    nat            = var.nat_is_on
+    security_group_ids = [yandex_vpc_security_group.example.id]
+  }
+  metadata = merge(var.common_metadata, local.metadata)
 }
