@@ -26,7 +26,7 @@
 1. Создайте файл count-vm.tf. Опишите в нём создание двух одинаковых ВМ web-1 и web-2 (не web-0 и web-1) с минимальными параметрами, используя мета-аргумент count loop. Назначьте ВМ созданную в первом задании группу безопасности.(как это сделать узнайте в документации 
 провайдера yandex/compute_instance )
 
-![12](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/12.png)
+
 
 2. Создайте файл for_each-vm.tf. Опишите в нём создание двух ВМ для баз данных с именами "main" и "replica" разных по cpu/ram/disk_volume , используя мета-аргумент for_each loop. Используйте для обеих ВМ одну общую переменную типа:
 
@@ -35,6 +35,9 @@ variable "each_vm" {
   type = list(object({  vm_name=string, cpu=number, ram=number, disk_volume=number }))
 
 }
+
+
+
 
 3. При желании внесите в переменную все возможные параметры.
 
