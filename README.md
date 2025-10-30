@@ -45,7 +45,6 @@ variable "each_vm" {
   
 5. Используйте функцию file в local-переменной для считывания ключа ~/.ssh/id_rsa.pub и его последующего использования в блоке metadata, взятому из ДЗ 2. 6. Инициализируйте проект, выполните код.
 
-![14](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/14.png)
 
 ![5](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/5.png)
 
