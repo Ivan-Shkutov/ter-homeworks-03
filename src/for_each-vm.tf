@@ -1,46 +1,36 @@
-variable "each_vm" {
-  type = list(object({
-    vm_name     = string
-    cpu         = number
-    ram         = number
-    disk_volume = number
-  }))
-  default = [
-    { vm_name = "main", cpu = 4, ram = 8, disk_volume = 20 },
-    { vm_name = "replica", cpu = 2, ram = 4, disk_volume = 15 }
-  ]
-}
+resource "yandex_compute_instance" "main_replica" {
+  # for_each         = var.each_vm
+  for_each         = { for i in var.each_vm : i.vm_name => i }
 
-locals {
-  each_vm_map = { for vm in var.each_vm : vm.vm_name => vm }
-}
-
-resource "yandex_compute_instance" "db" {
-  for_each = local.each_vm_map
-
-  name        = each.value.vm_name
-  platform_id = "standard-v1"
-  zone        = "ru-central1-a"
+  name             = each.value.vm_name
+  hostname         = each.value.vm_name
+  platform_id      = var.common_platform
+  zone             = var.default_zone
 
   resources {
-    cores  = each.value.cpu
-    memory = each.value.ram
+    cores          = each.value.cpu
+    memory         = each.value.ram
+    core_fraction  = var.common_core_fraction
   }
 
   boot_disk {
     initialize_params {
-      image_id = "fd80bm0rh4rkepi5ksdi" # Ubuntu 22.04 LTS
-      size     = each.value.disk_volume
+      image_id     = data.yandex_compute_image.ubuntu.image_id
+      size         = each.value.disk_volume
     }
   }
 
-  network_interface {
-    subnet_id          = yandex_vpc_subnet.develop.id
-    nat                = true
-    security_group_ids = [yandex_vpc_security_group.web-sg.id]
+  scheduling_policy {
+    preemptible    = var.preempt_on
   }
 
-  metadata = {
-    ssh-keys = "ubuntu:${local.ssh_key}"
+  network_interface {
+
+    subnet_id      = yandex_vpc_subnet.develop.id
+    nat            = var.nat_is_on
+    security_group_ids = [yandex_vpc_security_group.example.id]
   }
+
+  metadata = merge(var.common_metadata, local.metadata)
+
 }
