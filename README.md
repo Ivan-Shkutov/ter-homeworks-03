@@ -114,7 +114,7 @@ storage ansible_host=<внешний ip-адрес> fqdn=<полное доме�
 
 ![11](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/11.png)
 
-
+-----
 
 
 
