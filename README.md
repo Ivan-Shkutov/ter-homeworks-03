@@ -61,7 +61,7 @@ variable "each_vm" {
 
 -----
 
-![15](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/15.png)
+
 
 ![13](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/13.png)
 
