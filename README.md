@@ -36,7 +36,7 @@ variable "each_vm" {
 
 }
 
-
+![17](https://github.com/Ivan-Shkutov/ter-homeworks-03/blob/main/17.png)
 
 
 3. При желании внесите в переменную все возможные параметры.
