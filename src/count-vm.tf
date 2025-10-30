@@ -1,35 +1,38 @@
-locals {
-  ssh_key = file("~/.ssh/id_rsa.pub")
+data "yandex_compute_image" "ubuntu" {
+  family            = var.family_name
 }
 
 resource "yandex_compute_instance" "web" {
-  count = 2
+  depends_on = [yandex_compute_instance.main_replica]
 
-  name        = "web-${count.index + 1}" # web-1 и web-2
-  platform_id = "standard-v1"
-  zone        = "ru-central1-a"
+  count             = var.counter_vm
+  name              = "web-${ count.index + 1}"
+  hostname          = "${ yandex_vpc_network.develop.name }-web-${ count.index + 1 }"
+  platform_id       = var.common_platform
+  zone              = var.default_zone
 
   resources {
-    cores  = 2
-    memory = 2
+    cores           = var.web_cores
+    memory          = var.web_memory
+    core_fraction   = var.common_core_fraction
   }
 
   boot_disk {
     initialize_params {
-      image_id = "fd80bm0rh4rkepi5ksdi" # Ubuntu 22.04 LTS — можно уточнить ID командой yc compute image list
-      size     = 10
+      image_id     = data.yandex_compute_image.ubuntu.image_id
     }
   }
 
+  scheduling_policy {
+    preemptible    = var.preempt_on
+  }
+
   network_interface {
-    subnet_id          = yandex_vpc_subnet.develop.id
-    nat                = true
-    security_group_ids = [yandex_vpc_security_group.web-sg.id]
-  }
 
-  metadata = {
-    ssh-keys = "ubuntu:${local.ssh_key}"
+    subnet_id      = yandex_vpc_subnet.develop.id
+    nat            = var.nat_is_on
+    security_group_ids = [yandex_vpc_security_group.example.id]
   }
+  metadata = merge(var.common_metadata, local.metadata)
 
-  depends_on = [yandex_compute_instance.db]
 }
